@@ -2,8 +2,7 @@ import React from "react"
 import { useRouter } from "next/router"
 import NextLink from "next/link"
 import { Formik } from "formik"
-import axios from "axios"
-import Cookies from "js-cookie"
+import { useDispatch } from "react-redux"
 import Avatar from "@material-ui/core/Avatar"
 import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
@@ -19,6 +18,7 @@ import Container from "@material-ui/core/Container"
 import CssBaseline from "@material-ui/core/CssBaseline"
 
 import Copyright from "components/Copyright"
+import { signin } from "store/userSlice"
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
 export default () => {
   const router = useRouter()
   const classes = useStyles()
+  const dispatch = useDispatch()
 
   return (
     <Container component="main" maxWidth="xs">
@@ -69,13 +70,12 @@ export default () => {
           }}
           onSubmit={async (values, { setErrors, setSubmitting }) => {
             try {
-              const res = await axios.post("/api/signin", {
-                email: values.email,
-                password: values.password,
-              })
-              const { token, user } = res.data
-              Cookies.set("token", token)
-              router.push("/")
+              dispatch(
+                signin({
+                  email: values.email,
+                  password: values.password,
+                })
+              )
             } catch (error) {
               const errors: any = {}
               errors.password = "Incorrect password"
