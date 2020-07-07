@@ -1,74 +1,184 @@
 import React from "react"
+import { NextPage } from "next"
 import Router from "next/router"
 import cookies from "next-cookies"
 import { GetServerSideProps } from "next"
 import { useSelector, useDispatch } from "react-redux"
+import { makeStyles } from "@material-ui/core/styles"
+import Container from "@material-ui/core/Container"
+import Grid from "@material-ui/core/Grid"
+import Paper from "@material-ui/core/Paper"
+import Card from "@material-ui/core/Card"
+import CardActionArea from "@material-ui/core/CardActionArea"
+import CardContent from "@material-ui/core/CardContent"
+import CardMedia from "@material-ui/core/CardMedia"
+import Typography from "@material-ui/core/Typography"
 import Button from "@material-ui/core/Button"
 
 import { RootState } from "store"
-import { signout } from "store/userSlice"
-import { User } from "prisma"
+import { signedIn, signout } from "store/userSlice"
 
-type SignedInProps = {
-  user: User | {}
-  handleClick: any
+type Portfolio = {
+  title: string
+  content: string
 }
 
-const SignedIn: React.FC<SignedInProps> = ({ user, handleClick }) => {
-  const userEmpty = Object.keys(user).length === 0
+const portfolios: Portfolio[] = [
+  { title: "Todos", content: "Todos" },
+  { title: "Calculator", content: "Calculator" },
+  { title: "Arkanoid", content: "Arkanoid" },
+  { title: "Resumake", content: "Resumake" },
+]
 
-  return (
-    <div>
-      {userEmpty ? <h2>loading</h2> : <h2>welcome</h2>}
-      <Button onClick={handleClick}>Sign out</Button>
-    </div>
-  )
-}
+const useStyles = makeStyles({
+  root: {
+    flexGrow: 1,
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    paddingTop: 24,
+    paddingBottom: 24,
+  },
+  paper: {
+    width: 240,
+    height: 320,
+  },
+  media: {
+    width: 240,
+    height: 240,
+  },
+})
 
-const SignedOut = () => {
-  const handleSigninClick = () => Router.push("/signin")
+type HomePageProps = HomePageSSRProps
 
-  const handleSignupClick = () => Router.push("/signup")
-
-  return (
-    <div>
-      <h2>test</h2>
-      <Button onClick={handleSigninClick}>Sign in</Button>
-      <Button onClick={handleSignupClick}>Sign up</Button>
-    </div>
-  )
-}
-
-type Data = {
-  hasToken: boolean
-}
-
-export default (props: any) => {
-  const [hasToken, setHasToken] = React.useState((props as Data).hasToken)
-  const { user } = useSelector((state: RootState) => state)
+const HomePage: NextPage<HomePageProps> = ({ ssrHasToken }) => {
+  const classes = useStyles()
   const dispatch = useDispatch()
+  const { user } = useSelector((state: RootState) => state)
+  const [hasToken, setHasToken] = React.useState(ssrHasToken)
+  const disabledCards = signedIn(user) ? [] : [0, 3]
+
+  const handleSigninClick = () => {
+    Router.push("/signin")
+  }
+
+  const handleSignupClick = () => {
+    Router.push("/signup")
+  }
 
   const handleSignoutClick = () => {
     dispatch(signout())
     setHasToken(false)
   }
 
+  const handleCardClick = (index: number) => {
+    Router.push(`/${portfolios[index].title.toLowerCase()}`)
+  }
+
   return (
-    <div>
-      <h1>Index</h1>
-      {hasToken ? (
-        <SignedIn user={user} handleClick={handleSignoutClick} />
-      ) : (
-        <SignedOut />
-      )}
-    </div>
+    <Container className={classes.root}>
+      <Grid container alignItems="center" spacing={6}>
+        <Grid item xs={12}>
+          <Grid container justify="center" spacing={4}>
+            {portfolios.map((portfolio, index) => (
+              <Grid item key={portfolio.title}>
+                <Paper className={classes.paper}>
+                  <Card>
+                    <CardActionArea
+                      onClick={() => handleCardClick(index)}
+                      disabled={disabledCards.includes(index)}
+                    >
+                      <CardMedia
+                        image={`/logo.svg`}
+                        title="Contemplative Reptile"
+                        className={classes.media}
+                      />
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          {portfolio.title}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="textSecondary"
+                          component="p"
+                        >
+                          {portfolio.content}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <Grid container justify="center" alignItems="center" spacing={2}>
+            {hasToken ? (
+              <React.Fragment>
+                <Grid item>
+                  <Typography>Welcome,</Typography>
+                </Grid>
+                {signedIn(user) ? (
+                  <Grid item>
+                    <Typography color="secondary">{user.fullName}</Typography>
+                  </Grid>
+                ) : (
+                  <Grid item>
+                    <Typography>loading...</Typography>
+                  </Grid>
+                )}
+                <Grid item>
+                  <Button
+                    color="secondary"
+                    variant="contained"
+                    onClick={handleSignoutClick}
+                  >
+                    Sign out
+                  </Button>
+                </Grid>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <Grid item>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={handleSigninClick}
+                  >
+                    Sign in
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={handleSignupClick}
+                  >
+                    Sign up
+                  </Button>
+                </Grid>
+              </React.Fragment>
+            )}
+          </Grid>
+        </Grid>
+      </Grid>
+    </Container>
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Data> = async (ctx) => {
+type HomePageSSRProps = {
+  ssrHasToken: boolean
+}
+
+export const getServerSideProps: GetServerSideProps<HomePageSSRProps> = async (
+  ctx
+) => {
   return {
     props: {
-      hasToken: Boolean(cookies(ctx).token),
+      ssrHasToken: Boolean(cookies(ctx).token),
     },
   }
 }
+
+export default HomePage

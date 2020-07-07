@@ -1,3 +1,5 @@
+import "utils/extensions"
+
 import React from "react"
 import { AppProps } from "next/app"
 import Head from "next/head"
@@ -8,11 +10,11 @@ import { ThemeProvider } from "@material-ui/core/styles"
 import CssBaseline from "@material-ui/core/CssBaseline"
 
 import store from "store"
-import { updateUser } from "store/userSlice"
-import { theme, shield } from "utils"
-import GoTo from "components/GoTo"
+import { createUser } from "store/userSlice"
+import { theme } from "utils"
+import MySpeedDial from "components/MySpeedDial"
 
-export default ({ Component, pageProps }: AppProps) => {
+export default ({ Component, pageProps, router }: AppProps) => {
   React.useEffect(() => {
     // Remove server-side injected css
     const jssStyles = document.querySelector("#jss-server-side")
@@ -30,10 +32,15 @@ export default ({ Component, pageProps }: AppProps) => {
           baseURL: "http://localhost:3000",
         })
         .then((res) => {
-          store.dispatch(updateUser(res.data.user))
+          store.dispatch(createUser(res.data.user))
         })
     }
   }, [])
+
+  // Decide whether should show speed dial
+  const speedDialHidden = ["/arkanoid/game"].includes(router.pathname)
+    ? true
+    : false
 
   return (
     <React.Fragment>
@@ -47,8 +54,8 @@ export default ({ Component, pageProps }: AppProps) => {
       <Provider store={store}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <GoTo />
           <Component {...pageProps} />
+          <MySpeedDial hidden={speedDialHidden} />
         </ThemeProvider>
       </Provider>
     </React.Fragment>

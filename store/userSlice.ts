@@ -3,14 +3,26 @@ import Router from "next/router"
 import Cookies from "js-cookie"
 import axios from "axios"
 
-import { User } from "prisma"
+import { User, UserUpdateWithoutTodosDataInput } from "prisma"
+
+export type UserState = User | {}
+
+const initialState: UserState = {}
+
+export const signedIn = (user: UserState): user is User => {
+  return Object.keys(user).length !== 0
+}
 
 const userSlice = createSlice({
   name: "user",
-  initialState: {},
+  initialState,
   reducers: {
-    resetUser: () => ({}),
-    updateUser: (_state, action: PayloadAction<User>) => action.payload,
+    createUser: (_state, action: PayloadAction<User>) => action.payload,
+    deleteUser: () => ({}),
+    updateUser: (
+      state,
+      action: PayloadAction<UserUpdateWithoutTodosDataInput>
+    ) => ({ ...state, ...action.payload }),
   },
 })
 
@@ -31,7 +43,7 @@ export const signin = createAsyncThunk(
       }
     )
     const { token, user } = res.data
-    dispatch(updateUser(user))
+    dispatch(createUser(user))
     Cookies.set("token", token)
     Router.push("/")
   }
@@ -40,11 +52,11 @@ export const signin = createAsyncThunk(
 export const signout = createAsyncThunk(
   "user/signout",
   (_arg, { dispatch }) => {
-    dispatch(resetUser())
+    dispatch(deleteUser())
     Cookies.remove("token")
   }
 )
 
-export const { resetUser, updateUser } = userSlice.actions
+export const { createUser, deleteUser, updateUser } = userSlice.actions
 
 export default userSlice.reducer
