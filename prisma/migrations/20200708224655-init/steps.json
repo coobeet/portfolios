@@ -155,7 +155,7 @@
     {
       "tag": "CreateField",
       "model": "User",
-      "field": "name",
+      "field": "fullName",
       "type": "String",
       "arity": "Required"
     },
@@ -308,6 +308,13 @@
       "field": "content",
       "type": "String",
       "arity": "Required"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Todo",
+      "field": "detail",
+      "type": "String",
+      "arity": "Optional"
     },
     {
       "tag": "CreateField",
