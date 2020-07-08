@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { sign } from "jsonwebtoken"
+import { compare } from "bcryptjs"
 
 import { db } from "prisma"
 
@@ -8,7 +9,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (email) {
     const user = await db.user.findOne({ where: { email } })
-    if (user && password === user.password) {
+    if (user && (await compare(password, user.password))) {
       const token = sign({ userId: user.id }, process.env.APP_SECRET || "")
       res.status(200).json({ token, user })
       return

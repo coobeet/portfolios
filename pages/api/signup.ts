@@ -1,22 +1,25 @@
-import { NextApiRequest, NextApiResponse } from "next"
-import { sign } from "jsonwebtoken"
+import { NextApiHandler } from "next"
+import { hash } from "bcryptjs"
 
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, User } from "@prisma/client"
 
 const db = new PrismaClient()
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const { email, password } = req.body
+const handler: NextApiHandler<User> = async (req, res) => {
+  const { email, password, username, fullName } = req.body
 
-  if (email) {
-    const user = await db.user.findOne({ where: { email } })
-    if (user && password === user.password) {
-      const token = sign({ userId: user.id }, process.env.APP_SECRET || "")
-      const { password: _, ...userWithoutPassword } = user
-      res.status(200).json({ token, user: userWithoutPassword })
+  if (email && password && username && fullName) {
+    if (email !== "" && password !== "" && username !== "" && fullName !== "") {
+      const hashedPassword = await hash(password, 10)
+      const newUser = await db.user.create({
+        data: { email, password: hashedPassword, username, fullName },
+      })
+      res.status(200).json(newUser)
       return
     }
   }
 
-  res.status(400).json({ message: "Incorrect. Please check again." })
+  res.status(500).end()
 }
+
+export default handler
