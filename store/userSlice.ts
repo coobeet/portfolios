@@ -4,6 +4,7 @@ import Cookies from "js-cookie"
 import axios from "axios"
 
 import { User, UserUpdateWithoutTodosDataInput } from "prisma"
+import { env } from "utils"
 
 export type UserState = User | {}
 
@@ -39,7 +40,7 @@ export const signin = createAsyncThunk(
       "/api/signin",
       { ...arg },
       {
-        baseURL: "http://localhost:3000",
+        baseURL: env.BASE_URL,
       }
     )
     const { token, user } = res.data
