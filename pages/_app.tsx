@@ -11,7 +11,7 @@ import CssBaseline from "@material-ui/core/CssBaseline"
 
 import store from "store"
 import { createUser } from "store/userSlice"
-import { theme } from "utils"
+import { theme, env } from "utils"
 import MySpeedDial from "components/MySpeedDial"
 
 export default ({ Component, pageProps, router }: AppProps) => {
@@ -29,7 +29,7 @@ export default ({ Component, pageProps, router }: AppProps) => {
     if (token) {
       axios
         .get("/api/me", {
-          baseURL: "http://localhost:3000",
+          baseURL: env.BASE_URL,
         })
         .then((res) => {
           store.dispatch(createUser(res.data.user))
