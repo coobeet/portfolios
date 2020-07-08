@@ -5,7 +5,6 @@ import cookies from "next-cookies"
 import { GetServerSideProps } from "next"
 import { useSelector, useDispatch } from "react-redux"
 import { makeStyles } from "@material-ui/core/styles"
-import Container from "@material-ui/core/Container"
 import Grid from "@material-ui/core/Grid"
 import Paper from "@material-ui/core/Paper"
 import Card from "@material-ui/core/Card"
@@ -36,22 +35,11 @@ const useStyles = makeStyles({
     minHeight: "100vh",
     display: "flex",
     alignItems: "center",
-    paddingTop: 24,
-    paddingBottom: 24,
-  },
-  paper: {
-    width: 240,
-    height: 320,
-  },
-  media: {
-    width: 240,
-    height: 240,
+    padding: 32,
   },
 })
 
-type HomePageProps = HomePageSSRProps
-
-const HomePage: NextPage<HomePageProps> = ({ ssrHasToken }) => {
+const HomePage: NextPage<{ ssrHasToken?: boolean }> = ({ ssrHasToken }) => {
   const classes = useStyles()
   const dispatch = useDispatch()
   const { user } = useSelector((state: RootState) => state)
@@ -76,38 +64,36 @@ const HomePage: NextPage<HomePageProps> = ({ ssrHasToken }) => {
   }
 
   return (
-    <Container className={classes.root}>
+    <div className={classes.root}>
       <Grid container alignItems="center" spacing={6}>
         <Grid item xs={12}>
           <Grid container justify="center" spacing={4}>
             {portfolios.map((portfolio, index) => (
-              <Grid item key={portfolio.title}>
-                <Paper className={classes.paper}>
-                  <Card>
-                    <CardActionArea
-                      onClick={() => handleCardClick(index)}
-                      disabled={disabledCards.includes(index)}
-                    >
-                      <CardMedia
-                        image={`/logo.svg`}
-                        title="Contemplative Reptile"
-                        className={classes.media}
-                      />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="h2">
-                          {portfolio.title}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="textSecondary"
-                          component="p"
-                        >
-                          {portfolio.content}
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Paper>
+              <Grid key={portfolio.title} item xs={12} sm={6} lg={3}>
+                <Card>
+                  <CardActionArea
+                    onClick={() => handleCardClick(index)}
+                    disabled={disabledCards.includes(index)}
+                  >
+                    <CardMedia
+                      image={`/logo.svg`}
+                      title="Portfolio Image"
+                      style={{ minHeight: 240 }}
+                    />
+                    <CardContent style={{ minHeight: 160 }}>
+                      <Typography gutterBottom variant="h5" component="h2">
+                        {portfolio.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        component="p"
+                      >
+                        {portfolio.content}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
               </Grid>
             ))}
           </Grid>
@@ -163,7 +149,7 @@ const HomePage: NextPage<HomePageProps> = ({ ssrHasToken }) => {
           </Grid>
         </Grid>
       </Grid>
-    </Container>
+    </div>
   )
 }
 

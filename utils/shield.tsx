@@ -38,7 +38,7 @@ const checkAuthorization: CheckAuthorization = ({ rules, ctx }) => {
 type Shield = (
   fallback?: string,
   rules?: string[]
-) => (WrappedPage: NextPage) => NextPage
+) => (WrappedPage: NextPage<any>) => NextPage
 
 export const shield: Shield = (fallback = "/", rules = ["user.signedIn"]) => (
   WrappedPage
@@ -62,13 +62,12 @@ export const shield: Shield = (fallback = "/", rules = ["user.signedIn"]) => (
   return WrapperPage
 }
 
-export const useShield = ({
-  authorized,
-  fallback,
-}: {
+export type UseShieldArg = {
   authorized: boolean
   fallback: string
-}) => {
+}
+
+export const useShield = ({ authorized, fallback }: UseShieldArg) => {
   React.useEffect(() => {
     if (!authorized) Router.push(fallback)
   }, [])
