@@ -24,9 +24,10 @@ export default ({ Component, pageProps, router }: AppProps) => {
   }, [])
 
   React.useEffect(() => {
-    // Fetch global shared data
+    // Fetch or load global shared data
     const token = Cookies.get("token")
-    if (token) {
+    const userStr = localStorage.getItem("user")
+    if (!userStr && token) {
       axios
         .get("/api/me", {
           baseURL: env.BASE_URL,
@@ -34,6 +35,9 @@ export default ({ Component, pageProps, router }: AppProps) => {
         .then((res) => {
           store.dispatch(createUser(res.data.user))
         })
+    } else if (userStr) {
+      const user = JSON.parse(userStr)
+      store.dispatch(createUser(user))
     }
   }, [])
 

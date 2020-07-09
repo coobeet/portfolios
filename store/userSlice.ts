@@ -46,6 +46,7 @@ export const signin = createAsyncThunk(
     const { token, user } = res.data
     dispatch(createUser(user))
     Cookies.set("token", token)
+    localStorage.setItem("user", JSON.stringify(user))
     Router.push("/")
   }
 )
@@ -71,6 +72,7 @@ export const signup = createAsyncThunk(
     const { token, user } = res.data
     dispatch(createUser(user))
     Cookies.set("token", token)
+    localStorage.setItem("user", JSON.stringify(user))
     Router.push("/")
   }
 )
@@ -80,6 +82,8 @@ export const signout = createAsyncThunk(
   (_arg, { dispatch }) => {
     dispatch(deleteUser())
     Cookies.remove("token")
+    localStorage.removeItem("user")
+    localStorage.removeItem("todos")
   }
 )
 

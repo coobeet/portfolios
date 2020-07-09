@@ -39,17 +39,35 @@ const TodosPage: NextPage<UseShieldArg> = ({ authorized, fallback }) => {
 
   const classes = useStyles()
   const [todos, setTodos] = React.useState<Todo[]>([])
+  const didMountRef = React.useRef<boolean>(false)
   const [selected, setSelected] = React.useState<number | null>(null)
   const [editable, setEditable] = React.useState<boolean>(false)
   const [createTodoInput, setCreateTodoInput] = React.useState<string>("")
   const [titleInput, setTitleInput] = React.useState<string>("")
   const [detailInput, setDetailInput] = React.useState<string | null>("")
 
+  // component did mount
   React.useEffect(() => {
-    axios.get("/api/todos").then((res) => {
-      setTodos(res.data)
-    })
+    const todosStr = localStorage.getItem("todos")
+
+    if (todosStr) {
+      setTodos(JSON.parse(todosStr))
+    } else {
+      axios.get("/api/todos").then((res) => {
+        setTodos(res.data)
+        localStorage.setItem("todos", JSON.stringify(res.data))
+      })
+    }
   }, [])
+
+  // todos update but exclude first render
+  React.useEffect(() => {
+    if (didMountRef.current) {
+      localStorage.setItem("todos", JSON.stringify(todos))
+    } else {
+      didMountRef.current = true
+    }
+  }, [todos])
 
   return (
     <div className={classes.root}>

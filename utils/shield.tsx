@@ -38,7 +38,7 @@ const checkAuthorization: CheckAuthorization = ({ rules, ctx }) => {
 type Shield = (
   fallback?: string,
   rules?: string[]
-) => (WrappedPage: NextPage<any>) => NextPage
+) => (WrappedPage: NextPage<any>) => NextPage<any>
 
 export const shield: Shield = (fallback = "/", rules = ["user.signedIn"]) => (
   WrappedPage
