@@ -68,7 +68,7 @@ export default () => {
             }
             return errors
           }}
-          onSubmit={async (values, { setErrors, setSubmitting }) => {
+          onSubmit={(values, { setErrors, setSubmitting }) => {
             try {
               dispatch(
                 signin({
@@ -80,8 +80,8 @@ export default () => {
               const errors: any = {}
               errors.password = "Incorrect password"
               setErrors(errors)
+              setSubmitting(false)
             }
-            setSubmitting(false)
           }}
         >
           {({

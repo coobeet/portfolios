@@ -50,6 +50,31 @@ export const signin = createAsyncThunk(
   }
 )
 
+export const signup = createAsyncThunk(
+  "user/signup",
+  async (
+    arg: {
+      username: string
+      fullName: string
+      email: string
+      password: string
+    },
+    { dispatch }
+  ) => {
+    const res = await axios.post(
+      "/api/signup",
+      { ...arg },
+      {
+        baseURL: env.BASE_URL,
+      }
+    )
+    const { token, user } = res.data
+    dispatch(createUser(user))
+    Cookies.set("token", token)
+    Router.push("/")
+  }
+)
+
 export const signout = createAsyncThunk(
   "user/signout",
   (_arg, { dispatch }) => {

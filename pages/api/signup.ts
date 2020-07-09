@@ -1,11 +1,15 @@
 import { NextApiHandler } from "next"
 import { hash } from "bcryptjs"
+import { sign } from "jsonwebtoken"
 
 import { PrismaClient, User } from "@prisma/client"
 
 const db = new PrismaClient()
 
-const handler: NextApiHandler<User> = async (req, res) => {
+const handler: NextApiHandler<{ token: string; user: User }> = async (
+  req,
+  res
+) => {
   const { email, password, username, fullName } = req.body
 
   if (email && password && username && fullName) {
@@ -14,7 +18,8 @@ const handler: NextApiHandler<User> = async (req, res) => {
       const newUser = await db.user.create({
         data: { email, password: hashedPassword, username, fullName },
       })
-      res.status(200).json(newUser)
+      const token = sign({ userId: newUser.id }, process.env.APP_SECRET || "")
+      res.status(200).json({ token, user: newUser })
       return
     }
   }
