@@ -4074,11 +4074,6 @@ next-cookies@^2.0.3:
   dependencies:
     universal-cookie "^4.0.2"
 
-next-redux-wrapper@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.npm.taobao.org/next-redux-wrapper/download/next-redux-wrapper-6.0.2.tgz#b8dcd214e7b5cedd7a2a611ddb60422384d24374"
-  integrity sha1-uNzSFOe1zt16KmEd22BCI4TSQ3Q=
-
 next-tick@~1.0.0:
   version "1.0.0"
   resolved "https://registry.npm.taobao.org/next-tick/download/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"
@@ -5004,11 +4999,6 @@ react-refresh@0.8.3:
   version "0.8.3"
   resolved "https://registry.npm.taobao.org/react-refresh/download/react-refresh-0.8.3.tgz#721d4657672d400c5e3c75d063c4a85fb2d5d68f"
   integrity sha1-ch1GV2ctQAxePHXQY8SoX7LV1o8=
-
-react-tracked@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.npm.taobao.org/react-tracked/download/react-tracked-1.4.1.tgz#fcfa2a6b686ecdda5158cd55c012804e8e24bf6c"
-  integrity sha1-/Poqa2huzdpRWM1VwBKATo4kv2w=
 
 react-transition-group@^4.4.0:
   version "4.4.1"

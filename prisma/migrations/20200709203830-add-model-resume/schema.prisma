@@ -4,12 +4,12 @@ generator client {
 
 // datasource db {
 //   provider = "sqlite"
-//   url      = "file:./dev.db"
+//   url = "***"
 // }
 
 datasource db {
   provider = "postgres"
-  url      = env("DATABASE_URL")
+  url = "***"
 }
 
 model User {
@@ -41,7 +41,7 @@ model Resume {
   userId    Int
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
-  profile   Profile
+  profile   Profile?
   schools   School[]
   job       Job[]
   skills    Skill[]

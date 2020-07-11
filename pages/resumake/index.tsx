@@ -1,5 +1,5 @@
 import React from "react"
-import { NextPage, GetServerSideProps } from "next"
+import { NextPage } from "next"
 import Router from "next/router"
 import { makeStyles, Theme } from "@material-ui/core/styles"
 import {
@@ -9,19 +9,26 @@ import {
   Tab,
   Typography,
   Button,
+  ButtonGroup,
   LinearProgress,
+  IconButton,
+  Paper,
+  Box,
 } from "@material-ui/core"
+import {
+  GetApp,
+  ZoomIn,
+  ZoomOut,
+  Print,
+  ArrowLeft,
+  ArrowRight,
+} from "@material-ui/icons"
 
 import { shield, useShield } from "utils"
 import HomePage from "pages/index"
 import {
-  TemplatesType,
-  ProfileType,
-  EducationType,
-  ExperienceType,
-  SkillsType,
-  ProjectsType,
-  AwardsType,
+  ResumeType,
+  initialResumeState,
   TemplatesComponent,
   ProfileComponent,
   EducationComponent,
@@ -30,12 +37,7 @@ import {
   ProjectsComponent,
   AwardsComponent,
 } from "components/ResumeComponents"
-
-const MakeButton = () => (
-  <Button variant="outlined" color="primary" style={{ width: 128 }}>
-    MAKE
-  </Button>
-)
+import { theme } from "utils"
 
 export const SECTIONS = [
   { name: "Templates", component: TemplatesComponent },
@@ -47,17 +49,10 @@ export const SECTIONS = [
   { name: "Awards", component: AwardsComponent },
 ]
 
-type ResumeType =
-  | {
-      templates: TemplatesType
-      profile: ProfileType
-      education: EducationType
-      experience: ExperienceType
-      skills: SkillsType
-      projects: ProjectsType
-      awards: AwardsType
-    }
-  | {}
+const a11yProps = (index: number) => {
+  const key = SECTIONS[index].name.toLowerCase() as keyof ResumeType
+  return initialResumeState[key]
+}
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -67,19 +62,23 @@ const useStyles = makeStyles((theme: Theme) => ({
     background: theme.palette.background.paper,
   },
   header: {
-    height: 64,
+    flex: "0 0 64px",
     background: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
   },
   main: {
-    flexGrow: 1,
+    flex: "1 1 auto",
+    overflow: "hidden",
     borderTop: `1px solid ${theme.palette.divider}`,
     borderBottom: `1px solid ${theme.palette.divider}`,
   },
   footer: {
-    height: 64,
+    flex: "0 0 64px",
   },
   middle: {
+    height: "100%",
+    overflow: "auto",
+    padding: theme.spacing(4),
     [theme.breakpoints.up("md")]: {
       borderLeft: `1px solid ${theme.palette.divider}`,
       borderRight: `1px solid ${theme.palette.divider}`,
@@ -92,11 +91,15 @@ type ResumakePageProps = {
   fallback: string
 }
 
-export const ResumakePage: NextPage<any> = ({ authorized, fallback }) => {
+export const ResumakePage: NextPage<ResumakePageProps> = ({
+  authorized,
+  fallback,
+}) => {
   useShield({ authorized, fallback })
   if (!authorized) return <HomePage />
 
   const classes = useStyles()
+  const isMountedRef = React.useRef<boolean>(false)
 
   const [value, setValue] = React.useState<number>(0)
   React.useEffect(() => {
@@ -105,14 +108,26 @@ export const ResumakePage: NextPage<any> = ({ authorized, fallback }) => {
   }, [value])
   const Section = SECTIONS[value].component
 
-  const [resume, setResume] = React.useState<ResumeType>({})
+  const [resume, setResume] = React.useState<ResumeType>(initialResumeState)
+  React.useEffect(() => {
+    const resumeStr = localStorage.getItem("resume")
+  }, [])
+
+  React.useEffect(() => {
+    if (isMountedRef.current) {
+      console.log("save")
+      localStorage.setItem("resume", JSON.stringify(resume))
+    } else {
+      isMountedRef.current = true
+    }
+  }, [resume])
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
     setValue(newValue)
   }
 
   return (
-    <Grid container direction="column" className={classes.root}>
+    <Grid container direction="column" wrap="nowrap" className={classes.root}>
       <Grid
         container
         justify="center"
@@ -144,16 +159,76 @@ export const ResumakePage: NextPage<any> = ({ authorized, fallback }) => {
               alignItems="center"
               style={{ marginTop: 32 }}
             >
-              <MakeButton />
+              <Button variant="outlined" color="primary" style={{ width: 128 }}>
+                MAKE
+              </Button>
             </Grid>
           </Grid>
         </Hidden>
-        <Grid item xs={12} md={4} className={classes.middle}>
-          <Section />
+        <Grid item xs={12} md={4} direction="column" className={classes.middle}>
+          {/* @ts-ignore */}
+          <Section {...a11yProps(value)} />
         </Grid>
         <Hidden smDown>
-          <Grid item md={6}>
-            Right
+          <Grid item md={6} style={{ height: "100%", overflow: "auto" }}>
+            <Grid
+              container
+              justify="center"
+              alignItems="center"
+              style={{ height: 48 }}
+            >
+              <Grid container justify="center" xs={1}>
+                <Button color="primary" size="small">
+                  PDF
+                </Button>
+              </Grid>
+              <Grid container justify="center" xs={1}>
+                <Button color="primary" size="small">
+                  LaTax
+                </Button>
+              </Grid>
+              <Grid container justify="center" xs={1}>
+                <Button color="primary" size="small">
+                  JSON
+                </Button>
+              </Grid>
+              <Grid container justify="center" xs={2}>
+                <IconButton color="primary" size="small">
+                  <ArrowLeft />
+                </IconButton>
+              </Grid>
+              <Grid container justify="center" xs={2}>
+                <Typography>Page 1</Typography>
+              </Grid>
+              <Grid container justify="center" xs={2}>
+                <IconButton color="primary" size="small">
+                  <ArrowRight />
+                </IconButton>
+              </Grid>
+              <Grid container justify="center" xs={1}>
+                <IconButton color="primary" size="small">
+                  <ZoomOut />
+                </IconButton>
+              </Grid>
+              <Grid container justify="center" xs={1}>
+                <IconButton color="primary" size="small">
+                  <ZoomIn />
+                </IconButton>
+              </Grid>
+              <Grid container justify="center" xs={1}>
+                <IconButton color="primary" size="small">
+                  <Print />
+                </IconButton>
+              </Grid>
+            </Grid>
+            <Box
+              style={{
+                padding: 16,
+                borderTop: `1px solid ${theme.palette.divider}`,
+              }}
+            >
+              <Paper style={{ minHeight: 800 }}>Paper</Paper>
+            </Box>
           </Grid>
         </Hidden>
       </Grid>
@@ -182,7 +257,9 @@ export const ResumakePage: NextPage<any> = ({ authorized, fallback }) => {
           />
         </Hidden>
         <Hidden mdUp>
-          <MakeButton />
+          <Button variant="outlined" color="primary" style={{ width: 128 }}>
+            MAKE
+          </Button>
         </Hidden>
         <Button
           variant="contained"
